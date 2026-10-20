@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1b6b3a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Golfpott">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <title>Golfpott</title>
+  <link rel="stylesheet" href="style.css">
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-scene" aria-hidden="true">
+      <svg viewBox="0 0 400 90" preserveAspectRatio="xMidYMid slice" class="scene-svg">
+        <defs>
+          <linearGradient id="hdr-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#25894a"/>
+            <stop offset="1" stop-color="#145c30"/>
+          </linearGradient>
+          <linearGradient id="hdr-green" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2ea65a"/>
+            <stop offset="1" stop-color="#1b6b3a"/>
+          </linearGradient>
+        </defs>
+        <rect width="400" height="90" fill="url(#hdr-sky)"/>
+        <path d="M0 70 Q60 52 130 58 Q200 46 270 55 Q340 48 400 60 L400 90 L0 90 Z" fill="url(#hdr-green)" opacity=".5"/>
+        <path d="M0 75 Q50 62 120 68 Q190 56 260 64 Q330 57 400 68 L400 90 L0 90 Z" fill="url(#hdr-green)"/>
+        <line x1="200" y1="18" x2="200" y2="58" stroke="#fff" stroke-width="2" opacity=".7"/>
+        <path d="M200 18 L215 23 L200 28 Z" fill="#ffd966"/>
+        <circle cx="200" cy="64" r="4" fill="#fff" opacity=".9"/>
+        <circle cx="80" cy="72" r="2.5" fill="#fff" opacity=".5"/>
+        <circle cx="320" cy="70" r="2.5" fill="#fff" opacity=".4"/>
+      </svg>
+    </div>
+    <div class="header-content">
+      <h1 class="app-title"><span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M12 2v6"/><path d="M12 2l4 1.5L12 5"/></svg></span> Golfpott</h1>
+      <div class="pot-summary" id="pot-summary"></div>
+      <div class="build-badge" id="build-badge" title="Versionsnummer och byggtid"></div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section class="section">
+      <h2 class="section-title"><svg class="section-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M22 21v-2a4 4 0 00-3-3.87"/></svg> Lägg till spelare</h2>
+      <form id="player-form" class="player-form" novalidate>
+        <div class="form-row name-autocomplete-wrap">
+          <input type="text" id="player-name" placeholder="Namn" required autocomplete="off" autocapitalize="words" class="input-field">
+          <div id="name-suggestions" class="name-suggestions hidden"></div>
+        </div>
+        <div class="form-row form-row-2">
+          <input type="text" id="player-points" placeholder="Poäng" inputmode="numeric" class="input-field">
+          <input type="text" id="player-handicap" placeholder="Handicap" inputmode="decimal" class="input-field">
+        </div>
+        <div class="form-row form-category">
+          <label class="cat-option">
+            <input type="radio" name="category" value="herr" checked>
+            <span>Herr</span>
+          </label>
+          <label class="cat-option">
+            <input type="radio" name="category" value="dam">
+            <span>Dam</span>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="player-form-submit" class="btn btn-primary btn-add">Lägg till</button>
+          <button type="button" id="voice-add-btn" class="btn btn-secondary btn-voice" title="Lägg till spelare med rösten" aria-label="Lägg till spelare med rösten">🎤 Röst</button>
+          <button type="button" id="player-form-cancel" class="btn btn-secondary hidden">Avbryt</button>
+        </div>
+        <div id="voice-status" class="voice-status hidden"></div>
+      </form>
+      <div id="form-error" class="error-msg hidden"></div>
+    </section>
+
+    <section class="section" id="player-list-section">
+      <h2 class="section-title"><svg class="section-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Spelare <span id="player-count" class="count-badge">0</span></h2>
+      <div id="player-list" class="player-list"></div>
+      <div id="no-players" class="empty-state"><span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="26" r="10"/><path d="M24 6v8"/><path d="M24 6l5 2-5 2"/><path d="M16 42c0-4 3.5-6 8-6s8 2 8 6"/></svg></span><br>Inga spelare tillagda än.</div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title"><svg class="section-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Inställningar</h2>
+      <div class="settings-grid">
+        <div class="setting-group">
+          <label for="round-date">Datum</label>
+          <input type="date" id="round-date" class="input-field">
+        </div>
+        <div class="setting-group">
+          <label for="buy-in">Insats per spelare (€)</label>
+          <input type="text" id="buy-in" inputmode="decimal" class="input-field">
+        </div>
+      </div>
+      <div class="setting-group">
+        <label for="template-select">Prismall</label>
+        <select id="template-select" class="input-field"></select>
+      </div>
+      <div id="template-editor"></div>
+      <button type="button" id="reset-templates-btn" class="btn btn-secondary btn-small tpl-action-btn">Återställ mallar till standard</button>
+      <div class="setting-group toggle-group-ladies">
+        <label class="toggle-label">
+          <input type="checkbox" id="ladies-prize-enabled">
+          <span class="toggle-switch"></span>
+          <span>Aktivera dampris</span>
+        </label>
+      </div>
+      <div id="ladies-prize-settings" class="ladies-prize-settings hidden"></div>
+      <hr class="section-divider">
+      <div class="setting-group">
+        <label for="sebastian-pot-input">Sebastian-pott i €</label>
+        <input type="text" id="sebastian-pot-input" inputmode="decimal" class="input-field" placeholder="0">
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title"><svg class="section-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2"/></svg> Resultat</h2>
+      <div id="results-list" class="results-list"></div>
+      <div id="results-empty" class="empty-state"><span class="empty-icon" aria-hidden="true"><svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6h-7a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V13"/><path d="M27 13L14 26"/><path d="M14 13h13v13"/><circle cx="34" cy="34" r="8"/></svg></span><br>Lägg till spelare och poäng för att se resultat.</div>
+    </section>
+
+    <section class="section actions-section">
+      <div class="actions-grid">
+        <button id="share-btn" class="btn btn-primary">Dela</button>
+        <button id="export-csv-btn" class="btn btn-primary">Exportera CSV</button>
+        <button id="new-round-btn" class="btn btn-danger">Ny runda</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
